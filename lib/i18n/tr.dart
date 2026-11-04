@@ -8,8 +8,8 @@ import 'hil_extra.dart';
 class Lang {
   Lang._();
 
-  /// 'hil' Hiligaynon · 'fil' Filipino (not translated yet, shows English) · 'en' English.
-  static String code = 'hil';
+  /// 'en' English · 'hil' Hiligaynon · 'fil' Filipino (not translated yet, shows English).
+  static String code = 'en';
 }
 
 /// Shows [s] in the owner's language. Text with no translation stays English.

@@ -24,7 +24,8 @@ List<Widget> spaced(List<Widget> children, double gap) {
 
 enum BtnStyle { primary, secondary, dark, danger }
 
-/// Large touch-friendly button (60 px by default).
+/// Large, accessible touch-friendly button (56 px minimum, government-style).
+/// Professional design with clear visual hierarchy and good contrast for readability.
 class BigButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
@@ -35,38 +36,63 @@ class BigButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = switch (style) {
-      BtnStyle.primary => AppColors.primary,
-      BtnStyle.secondary => Colors.white,
-      BtnStyle.dark => AppColors.text,
-      BtnStyle.danger => AppColors.missingFg,
+    // Government-style color scheme with strong contrast
+    final (bg, fg, border, elevation) = switch (style) {
+      BtnStyle.primary => (AppColors.primary, Colors.white, BorderSide.none, 2.0),
+      BtnStyle.secondary => (AppColors.surface2, AppColors.primary, const BorderSide(color: AppColors.borderStrong, width: 1.5), 0.0),
+      BtnStyle.dark => (AppColors.text, Colors.white, BorderSide.none, 2.0),
+      BtnStyle.danger => (AppColors.missingFg, Colors.white, BorderSide.none, 2.0),
     };
-    final fg = style == BtnStyle.secondary ? AppColors.text : Colors.white;
+
     final child = Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (icon != null) ...[Icon(icon, size: 22), const SizedBox(width: 8)],
-        Flexible(child: Text(tr(label), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis)),
-      ],
-    );
-    return SizedBox(
-      height: height,
-      child: TextButton(
-        onPressed: onPressed,
-        style: TextButton.styleFrom(
-          backgroundColor: bg,
-          foregroundColor: fg,
-          disabledBackgroundColor: bg.withOpacity(0.4),
-          disabledForegroundColor: fg.withOpacity(0.7),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          textStyle: TextStyle(fontSize: height >= 56 ? 17 : 16, fontWeight: FontWeight.w700, fontFamily: AppTheme.fontFamily),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: style == BtnStyle.secondary ? const BorderSide(color: AppColors.borderStrong) : BorderSide.none,
+        if (icon != null) ...[Icon(icon, size: 20), const SizedBox(width: 10)],
+        Flexible(
+          child: Text(
+            tr(label),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(letterSpacing: 0.3),
           ),
         ),
-        child: child,
+      ],
+    );
+
+    return SizedBox(
+      height: height,
+      child: Material(
+        color: bg,
+        elevation: elevation,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            decoration: BoxDecoration(
+              border: border == BorderSide.none ? null : Border.all(color: border.color, width: border.width),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: DefaultTextStyle(
+                style: TextStyle(
+                  fontSize: height >= 56 ? 16 : 15,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: AppTheme.fontFamily,
+                  color: onPressed == null ? fg.withValues(alpha: 0.5) : fg,
+                  letterSpacing: 0.3,
+                ),
+                child: Opacity(
+                  opacity: onPressed == null ? 0.5 : 1,
+                  child: child,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -474,33 +500,45 @@ class StatusTag extends StatelessWidget {
 
 enum NoteKind { ok, info, warn, missing }
 
+/// Professional government-style information box with semantic colors.
+/// Supports titles, icons, and action buttons for different message types.
 class NoteBox extends StatelessWidget {
   final String text;
   final NoteKind kind;
   final String? title;
   final Widget? action;
   const NoteBox(this.text, {super.key, this.kind = NoteKind.info, this.title, this.action});
+
   @override
   Widget build(BuildContext context) {
     final (bg, fg, border, icon) = switch (kind) {
-      NoteKind.ok => (AppColors.tint, AppColors.primary, null, Icons.check_circle_outline),
-      NoteKind.info => (AppColors.surface2, AppColors.text2, null, null),
-      NoteKind.warn => (AppColors.warnBg, AppColors.text, AppColors.warnBorder, null),
-      NoteKind.missing => (AppColors.missingBg, AppColors.missingFg, null, Icons.error_outline),
+      NoteKind.ok => (AppColors.accentLight, AppColors.accentDark, const Color(0xFF66BB6A), Icons.check_circle_outline),
+      NoteKind.info => (AppColors.surface2, AppColors.text2, const Color(0xFFDDDDDD), null),
+      NoteKind.warn => (AppColors.warnBg, AppColors.text, const Color(0xFFFFB74D), Icons.warning_outlined),
+      NoteKind.missing => (AppColors.missingBg, AppColors.missingFg, const Color(0xFFEF5350), Icons.error_outline),
     };
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(14),
-        border: border == null ? null : Border.all(color: border, width: 1.5),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: border, width: 1.5),
       ),
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        if (icon != null) ...[Icon(icon, color: fg, size: 24), const SizedBox(width: 12)],
+        if (icon != null) ...[
+          Padding(
+            padding: const EdgeInsets.only(right: 12, top: 2),
+            child: Icon(icon, color: fg, size: 22),
+          ),
+        ],
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            if (title != null) ...[Text(tr(title!), style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: fg)), const SizedBox(height: 4)],
-            Text(tr(text), style: TextStyle(fontSize: 16, height: 1.45, color: fg)),
+            if (title != null) ...[
+              Text(tr(title!), style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: fg, letterSpacing: 0.2)),
+              const SizedBox(height: 6),
+            ],
+            Text(tr(text), style: TextStyle(fontSize: 15, height: 1.5, color: fg, letterSpacing: 0.1)),
             if (action != null) ...[const SizedBox(height: 12), action!],
           ]),
         ),
@@ -575,23 +613,25 @@ class KeyValueRow extends StatelessWidget {
       );
 }
 
-/// Dashed-style "+ Add" button.
+/// Professional "+ Add" button with modern styling.
 class AddButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   const AddButton(this.label, {super.key, required this.onTap});
   @override
   Widget build(BuildContext context) => SizedBox(
-        height: 56,
+        height: 52,
         child: OutlinedButton.icon(
           onPressed: onTap,
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add, size: 22),
           label: Text(tr(label)),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.primary,
-            side: const BorderSide(color: Color(0xFF9AA49E), width: 1.5),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, fontFamily: AppTheme.fontFamily),
+            side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3), width: 1.5),
+            backgroundColor: AppColors.primary.withValues(alpha: 0.05),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: AppTheme.fontFamily, letterSpacing: 0.2),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
           ),
         ),
       );

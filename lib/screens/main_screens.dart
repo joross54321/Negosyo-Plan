@@ -82,7 +82,7 @@ class HomeScreen extends StatelessWidget {
                     Expanded(child: Text(tr('Loan papers'), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white))),
                     Text(tr('${(pct * 100).round()}%'), style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white)),
                   ]),
-                  ProgressBar(pct, height: 10, background: const Color(0x4DFFFFFF), color: AppColors.mint),
+                  ProgressBar(pct, height: 10, background: const Color(0x4DFFFFFF), color: AppColors.accent),
                   Text(tr(missing == 0 ? 'Nothing missing' : '$missing ${missing == 1 ? 'thing' : 'things'} missing'), style: const TextStyle(fontSize: 16, color: Colors.white)),
                   SizedBox(
                     height: 56,

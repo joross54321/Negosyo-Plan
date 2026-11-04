@@ -61,7 +61,7 @@ class LoanScreen extends StatelessWidget {
         nextLabel: 'Finish',
         onNext: () => Navigator.pushNamed(context, '/check'),
         children: const [
-          SectionHead('Your loan', sub: 'For the application form'),
+          SectionHead('Your loan', sub: 'For the application form', highlighted: true),
           PesoQ('la', 'How much do you want to borrow?'),
           NoteBox('You do not need to list what you will buy. About 3 months after you get the money, a LEDIP officer will visit to check how the loan was used.'),
         ],

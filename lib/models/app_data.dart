@@ -12,7 +12,7 @@ class AppData {
   String mobile = '';
   String pinHash = '';
   bool verified = false;
-  String lang = 'hil'; // hil | fil | en
+  String lang = 'en'; // en | hil | fil
   bool langChosen = false; // language picked on first launch
   bool privacyAgreed = false;
 
@@ -45,6 +45,8 @@ class AppData {
   String submittedAt = ''; // when the owner submitted (ISO date), empty if not yet
   String appStatus = ''; // set by OLEDIPO staff: Pending · Returned for completion · Accepted
   String staffNote = ''; // what staff asked to fix, when returned
+  String statusSeen = ''; // the last status the owner was told about (pop-up shown once per change)
+  String noteSeen = ''; // the staff note shown with that pop-up
   Set<String> keptWarnings = {};
 
   // ---- settings ----
@@ -76,6 +78,8 @@ class AppData {
         'submittedAt': submittedAt,
         'appStatus': appStatus,
         'staffNote': staffNote,
+        'statusSeen': statusSeen,
+        'noteSeen': noteSeen,
         'keptWarnings': keptWarnings.toList(),
         'textSize': textSize,
         'readAloud': readAloud,
@@ -91,7 +95,7 @@ class AppData {
       ..mobile = j['mobile'] as String? ?? ''
       ..pinHash = j['pinHash'] as String? ?? ''
       ..verified = j['verified'] as bool? ?? false
-      ..lang = j['lang'] as String? ?? 'hil'
+      ..lang = j['lang'] as String? ?? 'en'
       ..langChosen = j['langChosen'] as bool? ?? false
       ..privacyAgreed = j['privacyAgreed'] as bool? ?? false
       ..v = strMap(j['v'])
@@ -107,10 +111,13 @@ class AppData {
       ..submittedAt = j['submittedAt'] as String? ?? ''
       ..appStatus = j['appStatus'] as String? ?? ''
       ..staffNote = j['staffNote'] as String? ?? ''
+      ..statusSeen = j['statusSeen'] as String? ?? ''
+      ..noteSeen = j['noteSeen'] as String? ?? ''
       ..keptWarnings = ((j['keptWarnings'] as List?) ?? []).map((e) => e.toString()).toSet()
       ..textSize = j['textSize'] as int? ?? 0
       ..readAloud = j['readAloud'] as bool? ?? false
       ..lastRoute = j['lastRoute'] as String? ?? '/about';
+    d.consentSave = !d.consentShare;
     return d;
   }
 

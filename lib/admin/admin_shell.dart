@@ -91,7 +91,7 @@ class _AdminShellState extends State<AdminShell> {
             endDrawer: _selected == null
                 ? null
                 : Drawer(
-                    width: 560,
+                    width: c.maxWidth < 560 ? c.maxWidth : 560,
                     backgroundColor: Colors.white,
                     child: _mode == _DrawerMode.application
                         ? _ApplicationDetail(app: _selected!, onRequirements: () => _open(_selected!, _DrawerMode.requirements))
@@ -151,7 +151,14 @@ class _Sidebar extends StatelessWidget {
                     child: Image.asset('assets/images/logo.png'),
                   ),
                   const SizedBox(width: 12),
-                  const Text('NegosyoPlan', style: TextStyle(fontSize: 21, fontWeight: FontWeight.w700, color: Colors.white)),
+                  const Expanded(
+                    child: Text(
+                      'NegosyoPlan',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 21, fontWeight: FontWeight.w700, color: Colors.white),
+                    ),
+                  ),
                 ]),
                 const SizedBox(height: 8),
                 const Text('OLEDIPO Admin · EMBRACE Program', style: TextStyle(fontSize: 13, color: AppColors.adminSideMuted)),
@@ -217,7 +224,10 @@ class _Header extends StatelessWidget {
 }
 
 Widget _btn(String label, VoidCallback onPressed, {BtnStyle style = BtnStyle.primary, double width = 170, double height = 46}) =>
-    SizedBox(width: width, child: BigButton(label, style: style, height: height, onPressed: onPressed));
+    LayoutBuilder(builder: (context, constraints) {
+      final buttonWidth = constraints.maxWidth.isFinite && constraints.maxWidth < width ? constraints.maxWidth : width;
+      return SizedBox(width: buttonWidth, child: BigButton(label, style: style, height: height, onPressed: onPressed));
+    });
 
 class _Kpis extends StatelessWidget {
   final List<(String, String, String)> items;
@@ -426,6 +436,7 @@ class _PassportsState extends State<_Passports> {
                 label: 'Town or city',
                 child: DropdownButtonFormField<String>(
                   value: _town,
+                  isExpanded: true,
                   items: [for (final t in towns) DropdownMenuItem(value: t, child: Text(t))],
                   onChanged: (v) => setState(() => _town = v ?? 'All towns'),
                 ),
@@ -442,37 +453,46 @@ class _PassportsState extends State<_Passports> {
       ),
       const SizedBox(height: 16),
       if (rows.isEmpty) const NoteBox('No passports match these filters.'),
-      Wrap(spacing: 16, runSpacing: 16, children: [
-        for (final a in rows)
-          SizedBox(
-            width: 480,
-            child: CardBox(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Expanded(
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(a.business, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-                      Text('${a.owner} · ${a.town} · ${a.type}', style: AppText.tiny.copyWith(fontSize: 14)),
-                      Text('${a.id} · Loan ${peso(a.loan)}', style: AppText.tiny.copyWith(fontSize: 14)),
+      LayoutBuilder(builder: (context, constraints) => Wrap(spacing: 16, runSpacing: 16, children: [
+            for (final a in rows)
+              SizedBox(
+                width: constraints.maxWidth < 480 ? constraints.maxWidth : 480,
+                child: CardBox(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                    LayoutBuilder(builder: (context, constraints) {
+                      final details = Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(a.business, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                        Text('${a.owner} · ${a.town} · ${a.type}', style: AppText.tiny.copyWith(fontSize: 14)),
+                        Text('${a.id} · Loan ${peso(a.loan)}', style: AppText.tiny.copyWith(fontSize: 14)),
+                      ]);
+                      final status = StatusPill(a.status.label);
+                      if (constraints.maxWidth < 360) {
+                        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          details,
+                          const SizedBox(height: 8),
+                          ConstrainedBox(constraints: BoxConstraints(maxWidth: constraints.maxWidth), child: status),
+                        ]);
+                      }
+                      return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Expanded(child: details),
+                        status,
+                      ]);
+                    }),
+                    const SizedBox(height: 8),
+                    Text(
+                        '${a.completeness}% complete  ·  ${s.docsFor(a).where((d) => d.status == DocStatus.verified).length} verified  ·  ${a.trainings} trainings',
+                        style: const TextStyle(fontSize: 14)),
+                    const SizedBox(height: 8),
+                    ProgressBar(a.completeness / 100, background: AppColors.divider),
+                    const SizedBox(height: 12),
+                    Wrap(spacing: 8, runSpacing: 8, children: [
+                      _btn('Open', () => widget.onOpen(a, _DrawerMode.application), width: 100, height: 40),
+                      _btn('Check requirements', () => widget.onOpen(a, _DrawerMode.requirements), style: BtnStyle.secondary, width: 190, height: 40),
                     ]),
-                  ),
-                  StatusPill(a.status.label),
-                ]),
-                const SizedBox(height: 8),
-                Text(
-                    '${a.completeness}% complete  ·  ${s.docsFor(a).where((d) => d.status == DocStatus.verified).length} verified  ·  ${a.trainings} trainings',
-                    style: const TextStyle(fontSize: 14)),
-                const SizedBox(height: 8),
-                ProgressBar(a.completeness / 100, background: AppColors.divider),
-                const SizedBox(height: 12),
-                Wrap(spacing: 8, runSpacing: 8, children: [
-                  _btn('Open', () => widget.onOpen(a, _DrawerMode.application), width: 100, height: 40),
-                  _btn('Check requirements', () => widget.onOpen(a, _DrawerMode.requirements), style: BtnStyle.secondary, width: 190, height: 40),
-                ]),
-              ]),
-            ),
-          ),
-      ]),
+                  ]),
+                ),
+              ),
+          ])),
     ]);
   }
 }

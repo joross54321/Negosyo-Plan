@@ -56,32 +56,162 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        backgroundColor: Colors.white,
         body: SafeArea(
-          child: InkWell(
-            onTap: _go,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(32, 0, 32, 44),
-              child: Column(children: [
-                Expanded(
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0, end: 1),
-                      duration: const Duration(milliseconds: 900),
-                      curve: Curves.easeOut,
-                      builder: (_, v, child) => Opacity(opacity: v, child: Transform.translate(offset: Offset(0, 12 * (1 - v)), child: child)),
-                      child: Image.asset(logoAsset, width: 168, height: 168, semanticLabel: trn('NegosyoPlan')),
+          child: Container(
+            // Professional gradient background
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.primary.withValues(alpha: 0.05),
+                  Colors.white,
+                  AppColors.primary.withValues(alpha: 0.03),
+                ],
+              ),
+            ),
+            child: InkWell(
+              onTap: _go,
+              child: Column(
+                children: [
+                  // Top spacer
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Logo with subtle background glow
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Subtle glow effect
+                            TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0.8, end: 1),
+                              duration: const Duration(milliseconds: 1500),
+                              curve: Curves.easeInOut,
+                              builder: (_, scale, __) => Transform.scale(
+                                scale: scale,
+                                child: Container(
+                                  width: 200,
+                                  height: 200,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: AppColors.primary.withValues(alpha: 0.08),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // Logo image with animation
+                            TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0, end: 1),
+                              duration: const Duration(milliseconds: 1000),
+                              curve: Curves.easeOut,
+                              builder: (_, v, child) => Opacity(
+                                opacity: v,
+                                child: Transform.translate(
+                                  offset: Offset(0, 20 * (1 - v)),
+                                  child: child,
+                                ),
+                              ),
+                              child: Image.asset(
+                                logoAsset,
+                                width: 140,
+                                height: 140,
+                                semanticLabel: trn('NegosyoPlan'),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        // App name with professional styling
+                        TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0, end: 1),
+                          duration: const Duration(milliseconds: 1200),
+                          curve: Curves.easeOut,
+                          builder: (_, v, child) => Opacity(
+                            opacity: v,
+                            child: Transform.translate(
+                              offset: Offset(0, 15 * (1 - v)),
+                              child: child,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                tr('NegosyoPlan'),
+                                style: TextStyle(
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                tr('Plan your negosyo. Get loan-ready.'),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  height: 1.5,
+                                  color: AppColors.text2,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 22),
-                    Text(tr('NegosyoPlan'), style: TextStyle(fontSize: 38, fontWeight: FontWeight.w700, color: AppColors.primary)),
-                    const SizedBox(height: 8),
-                    Text(tr('Plan your negosyo. Get loan-ready.'), textAlign: TextAlign.center, style: TextStyle(fontSize: 18, color: AppColors.text2)),
-                  ]),
-                ),
-                const SizedBox(width: 120, child: ProgressBar(0.4, height: 6, background: AppColors.tint)),
-                const SizedBox(height: 14),
-                Text(tr('Works offline · For EMBRACE loan applicants'), style: TextStyle(fontSize: 14, color: AppColors.muted)),
-              ]),
+                  ),
+                  // Bottom section with loading indicator
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                    child: Column(
+                      children: [
+                        // Animated loading progress
+                        TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0.2, end: 0.6),
+                          duration: const Duration(milliseconds: 1400),
+                          curve: Curves.easeInOut,
+                          builder: (_, value, __) => Container(
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: AppColors.tint,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                            child: FractionallySizedBox(
+                              widthFactor: value,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      AppColors.primary,
+                                      AppColors.accent,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        // Tagline
+                        Text(
+                          tr('Works offline · For EMBRACE loan applicants'),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.muted,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -313,19 +443,42 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
+
+    // Modern GCash-style PIN pad button
     Widget key(String k) {
       final ghost = k == 'del' || k == 'clr';
-      return SizedBox(
-        height: 60,
-        child: TextButton(
-          onPressed: () => _press(k),
-          style: TextButton.styleFrom(
-            backgroundColor: ghost ? Colors.transparent : AppColors.surface2,
-            foregroundColor: AppColors.text,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            textStyle: TextStyle(fontSize: ghost ? 16 : 26, fontWeight: FontWeight.w700, fontFamily: AppTheme.fontFamily),
+      final isZero = k == '0';
+
+      return Material(
+        color: ghost ? Colors.transparent : AppColors.surface2,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: () => _press(k),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: ghost ? null : Border.all(color: AppColors.border, width: 1),
+            ),
+            child: Center(
+              child: ghost
+                  ? Icon(
+                      k == 'del' ? Icons.backspace_outlined : Icons.clear_outlined,
+                      size: 24,
+                      color: AppColors.text2,
+                      semanticLabel: trn(k == 'del' ? 'Delete' : 'Clear'),
+                    )
+                  : Text(
+                      tr(k),
+                      style: TextStyle(
+                        fontSize: isZero ? 28 : 32,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.text,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+            ),
           ),
-          child: k == 'del' ? Icon(Icons.backspace_outlined, semanticLabel: trn('Delete')) : Text(tr(k == 'clr' ? 'Clear' : k)),
         ),
       );
     }
@@ -336,7 +489,7 @@ class _LoginScreenState extends State<LoginScreen> {
       footer: Footer(vertical: true, [
         BigButton(_busy ? 'Logging in…' : 'Log in', onPressed: _pin.length == _len && !_busy ? _login : null),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text(tr('New here? '), style: TextStyle(fontSize: 17)),
+          Text(tr('New here? '), style: TextStyle(fontSize: 16, color: AppColors.text2)),
           LinkButton('Create an account', onPressed: () => Navigator.pushReplacementNamed(context, '/signup')),
         ]),
       ]),
@@ -351,34 +504,69 @@ class _LoginScreenState extends State<LoginScreen> {
             onChanged: (v) => _mobile = v,
           ),
         ),
-        Row(children: [
-          Expanded(child: Text(tr('Your 6-digit PIN'), style: AppText.label)),
-          LinkButton('Forgot PIN?', onPressed: () => toast(context, 'Visit the OLEDIPO office to reset your PIN.')),
-        ]),
-        Semantics(
-          label: trn('${_pin.length} of $_len digits entered'),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            for (var i = 0; i < _len; i++)
-              Container(
-                width: 18,
-                height: 18,
-                margin: const EdgeInsets.symmetric(horizontal: 7),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: i < _pin.length ? AppColors.primary : Colors.transparent,
-                  border: Border.all(color: AppColors.primary, width: 2),
-                ),
-              ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(children: [
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(tr('Your 6-digit PIN'), style: AppText.label),
+                const SizedBox(height: 4),
+                Text(tr('Enter your secure PIN to log in'), style: AppText.small),
+              ]),
+            ),
+            LinkButton('Forgot PIN?', onPressed: () => toast(context, 'Visit the OLEDIPO office to reset your PIN.')),
           ]),
         ),
-        GridView.count(
-          crossAxisCount: 3,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 1.9,
-          children: [for (final k in const ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'clr', '0', 'del']) key(k)],
+        // Modern PIN indicator dots - GCash style
+        Semantics(
+          label: trn('${_pin.length} of $_len digits entered'),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var i = 0; i < _len; i++) ...[
+                    if (i > 0) const SizedBox(width: 12),
+                    Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: i < _pin.length ? AppColors.primary : AppColors.surface2,
+                        boxShadow: i < _pin.length
+                            ? [
+                                BoxShadow(
+                                  color: AppColors.primary.withValues(alpha: 0.3),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                )
+                              ]
+                            : null,
+                        border: Border.all(
+                          color: i < _pin.length ? AppColors.primary : AppColors.border,
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+        // Modern PIN pad grid - GCash inspired
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: GridView.count(
+            crossAxisCount: 3,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.85,
+            children: [for (final k in const ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'clr', '0', 'del']) key(k)],
+          ),
         ),
       ],
     );

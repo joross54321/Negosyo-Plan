@@ -20,25 +20,32 @@ class ConsentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
-    // Determine selected option: 'save' if only saving, 'share' if sharing with OLEDIPO
     final selected = app.data.consentShare ? 'share' : 'save';
 
-    Widget option(String title, String sub, String value, bool isSelected, VoidCallback onSelect) => CardBox(
+    void select(String value) {
+      app.change((data) {
+        data.consentShare = value == 'share';
+        data.consentSave = !data.consentShare;
+      });
+    }
+
+    Widget option(String title, String sub, String value) => CardBox(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
           radius: 14,
           child: RadioListTile<String>(
             value: value,
             groupValue: selected,
-            onChanged: (_) => onSelect(),
+            onChanged: (value) {
+              if (value != null) select(value);
+            },
             controlAffinity: ListTileControlAffinity.leading,
             title: Text(tr(title), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
             subtitle: Text(tr(sub), style: const TextStyle(fontSize: 15)),
           ),
         );
-
     return AppPage(
       title: 'Before we make your documents',
-      footer: Footer([
+       footer: Footer([
         BigButton('Continue', onPressed: () {
           if (selected == 'save') {
             Navigator.pushNamedAndRemoveUntil(context, '/home', (r) => false);
@@ -48,18 +55,8 @@ class ConsentScreen extends StatelessWidget {
         }),
       ]),
       children: [
-        option('Save them on this phone', 'Needed to make your documents.', 'save', selected == 'save',
-          () => app.change((d) {
-            d.consentSave = true;
-            d.consentShare = false;
-          }),
-        ),
-        option('Let me share them with OLEDIPO', 'Share your documents to help with your loan application.', 'share', selected == 'share',
-          () => app.change((d) {
-            d.consentSave = true;
-            d.consentShare = true;
-          }),
-        ),
+        option('Save them on this phone', 'Your answers stay on this phone. You can find documents on your dashboard.', 'save'),
+        option('Let me share them with OLEDIPO', 'Optional. Nothing is sent until you tap Share.', 'share'),
         const NoteBox('These documents help you apply. They do not guarantee loan approval. The EMBRACE committee decides.'),
       ],
     );

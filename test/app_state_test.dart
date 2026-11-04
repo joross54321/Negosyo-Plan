@@ -113,6 +113,16 @@ void main() {
   });
 
   group('sample data', () {
+    test('document consent loads as a single choice', () {
+      final shared = AppData.fromJson({'consentSave': true, 'consentShare': true});
+      expect(shared.consentSave, isFalse);
+      expect(shared.consentShare, isTrue);
+
+      final local = AppData.fromJson({'consentSave': false, 'consentShare': false});
+      expect(local.consentSave, isTrue);
+      expect(local.consentShare, isFalse);
+    });
+
     test('sample years are complete except the ones left empty on purpose', () {
       final s = fresh()..data = AppData.sample();
       expect(s.yearComplete(2025), isTrue);

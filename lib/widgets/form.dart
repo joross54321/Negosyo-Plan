@@ -137,13 +137,13 @@ class Footer extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
               child: vertical
                   ? Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: spaced(children, 12))
                   : Row(children: [
                       for (var i = 0; i < children.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 10),
-                        Expanded(child: children[i]),
+                        if (i > 0) const SizedBox(width: 12),
+                        Expanded(flex: i == children.length - 1 && children.length > 1 ? 13 : 10, child: children[i]),
                       ],
                     ]),
             ),
@@ -189,9 +189,8 @@ class StepPage extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),
             child: Column(children: [
-              Container(
-                color: AppColors.surface2,
-                padding: const EdgeInsets.fromLTRB(24, 10, 16, 12),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 10, 16, 0),
                 child: Row(children: [
                   BackCircle(onPressed: onBack),
                   const SizedBox(width: 10),
@@ -242,11 +241,14 @@ class IntroBox extends StatelessWidget {
 class SectionHead extends StatelessWidget {
   final String title;
   final String? sub;
-  const SectionHead(this.title, {super.key, this.sub});
+  final bool highlighted;
+  const SectionHead(this.title, {super.key, this.sub, this.highlighted = false});
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.only(top: 18),
-        decoration: const BoxDecoration(border: Border(top: BorderSide(color: AppColors.divider))),
+        padding: highlighted ? const EdgeInsets.all(16) : const EdgeInsets.only(top: 18),
+        decoration: highlighted
+            ? BoxDecoration(color: AppColors.tint, borderRadius: BorderRadius.circular(14))
+            : const BoxDecoration(border: Border(top: BorderSide(color: AppColors.divider))),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(tr(title).toUpperCase(), style: AppText.eyebrow),
           if (sub != null) ...[const SizedBox(height: 2), Text(tr(sub!), style: const TextStyle(fontSize: 13, color: AppColors.hint))],
@@ -635,30 +637,99 @@ class _ListQState extends State<ListQ> {
       if (rows.isEmpty && !_open) Padding(padding: EdgeInsets.only(bottom: 10), child: Text(tr('None added yet.'), style: TextStyle(fontSize: 15, color: AppColors.muted))),
       for (var i = 0; i < rows.length; i++)
         Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(16, 8, 4, 8),
-            decoration: BoxDecoration(border: Border.all(color: AppColors.border), borderRadius: BorderRadius.circular(12)),
-            child: Row(children: [
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(tr(rows[i][widget.fields.first.key] ?? '—'), style: const TextStyle(fontSize: 17)),
-                  if (widget.detail != null && widget.detail!(rows[i]).isNotEmpty)
-                    Text(tr(widget.detail!(rows[i])), style: const TextStyle(fontSize: 14, color: AppColors.muted)),
-                ]),
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Material(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            elevation: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.border, width: 1),
+                borderRadius: BorderRadius.circular(12),
+                color: AppColors.surface,
               ),
-              if (widget.amount != null) Text(tr(peso(widget.amount!(rows[i]))), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-              IconButton(tooltip: trn('Edit'), onPressed: () => _start(i), icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.muted)),
-              IconButton(
-                tooltip: trn('Remove'),
-                onPressed: () {
-                  final r = List<Map<String, String>>.from(rows)..removeAt(i);
-                  widget.onChanged(r);
-                  setState(() => _open = false);
-                },
-                icon: const Icon(Icons.close, size: 20, color: AppColors.muted),
-              ),
-            ]),
+              child: Row(children: [
+                // Product info column
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Text(
+                      tr(rows[i][widget.fields.first.key] ?? '—'),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.text, letterSpacing: 0.1),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (widget.detail != null && widget.detail!(rows[i]).isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        tr(widget.detail!(rows[i])),
+                        style: const TextStyle(fontSize: 13, color: AppColors.muted, letterSpacing: 0.1),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ]),
+                ),
+                // Price display
+                if (widget.amount != null) ...[
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        tr(peso(widget.amount!(rows[i]))),
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                // Action buttons
+                const SizedBox(width: 4),
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Material(
+                    color: AppColors.surface2,
+                    borderRadius: BorderRadius.circular(8),
+                    child: InkWell(
+                      onTap: () => _start(i),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Tooltip(
+                        message: tr('Edit'),
+                        child: Icon(Icons.edit_outlined, size: 18, color: AppColors.text2),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Material(
+                    color: AppColors.surface2,
+                    borderRadius: BorderRadius.circular(8),
+                    child: InkWell(
+                      onTap: () {
+                        final r = List<Map<String, String>>.from(rows)..removeAt(i);
+                        widget.onChanged(r);
+                        setState(() => _open = false);
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      child: Tooltip(
+                        message: tr('Remove'),
+                        child: Icon(Icons.close, size: 18, color: AppColors.missingFg),
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
+            ),
           ),
         ),
       if (_open)
@@ -682,11 +753,33 @@ class _ListQState extends State<ListQ> {
       if (canAdd) AddButton(widget.addLabel, onTap: _start),
       if (total != null)
         Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: Row(children: [
-            Expanded(child: Text(tr('Total'), style: TextStyle(fontSize: 17, color: AppColors.text2))),
-            Text(tr(peso(total)), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-          ]),
+          padding: const EdgeInsets.only(top: 16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.05),
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.2), width: 1.5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  tr('Total'),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.text, letterSpacing: 0.1),
+                ),
+                Text(
+                  tr(peso(total)),
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
     ]);
   }
